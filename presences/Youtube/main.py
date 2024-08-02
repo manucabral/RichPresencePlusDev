@@ -1,8 +1,6 @@
 import rpp
 import time
 
-thumbnail = "https://i.ytimg.com/vi/{videoId}/hqdefault.jpg"
-
 
 @rpp.extension
 class Youtube(rpp.Presence):
@@ -12,6 +10,7 @@ class Youtube(rpp.Presence):
         self.version = "1.0.0"
         self.clientId = 1113646725408772176
         self.name = "Youtube"
+        self.thumbnail = "https://i.ytimg.com/vi/{videoId}/hqdefault.jpg"
 
     def on_load(self):
         self.log.info("Started successfully")
@@ -39,7 +38,7 @@ class Youtube(rpp.Presence):
         videoId = videoId[1]
         author = tab.execute('document.querySelector("#owner #text").textContent')
         authorUrl = tab.execute('document.querySelector("#owner #text > a").href')
-        thumbnail = thumbnail.format(videoId=videoId)
+        thumbnail = self.thumbnail.format(videoId=videoId)
         playback = tab.execute("navigator.mediaSession.playbackState")
         self.small_text = "Playing" if playback == "playing" else "Paused"
         self.small_image = "play" if playback == "playing" else "pause"
