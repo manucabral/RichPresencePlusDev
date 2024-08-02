@@ -1,25 +1,26 @@
 from abc import ABC, abstractmethod
-from .runtime import Runtime
 
 
 class Presence(ABC):
     """
-    Abstract class for a presence extension.
+    Abstract class for presence extensions.
     """
 
-    name = None
-    version = "1.0.0"
-    usingWeb = False
-    clientId = None
-    title = None
-    details = None
-    state = None
-    large_image = None
-    large_text = None
-    small_image = None
-    small_text = None
-    start = None
-    end = None
+    def __init__(self):
+        self.name = None
+        self.version = "1.0.0"
+        self.web = False
+        self.clientId = None
+        self.title = None
+        self.details = None
+        self.state = None
+        self.large_image = None
+        self.small_image = None
+        self.small_text = "Rich Presence Plus"
+        self.buttons = None
+        self.start = None
+        self.end = None
+        self.log = None
 
     @abstractmethod
     def on_load(self) -> None:
@@ -32,12 +33,15 @@ class Presence(ABC):
         pass
 
     @abstractmethod
-    def on_update(self, context: Runtime = None) -> None:
+    def on_update(self, **context) -> None:
         """
         Called every second to update the presence.
 
         Args:
-            context: The runtime context.
+            **context: The context of the presence.
+
+        Context:
+            runtime (Runtime): The runtime instance for interaction with the browser.
 
         Returns:
             None
@@ -55,7 +59,7 @@ class Presence(ABC):
         pass
 
     @abstractmethod
-    def force_update(self) -> None:
+    def force_update(self):
         """
         Forces an update on the presence.
         Only updates if the time elapsed is greater than 15 seconds.
@@ -66,11 +70,13 @@ class Presence(ABC):
         pass
 
 
-def extension(cls: Presence) -> Presence:
+def extension(cls: Presence):
     """
-    Decorator to register a new presence extension.
+    Decorator to register a class new presence extension.
 
-    :param cls: The presence class to register.
-    :return: The registered class.
+    Args:
+        cls (Presence): The presence extension class.
+
+    Returns:
+        Presence: The presence extension class.
     """
-    pass
