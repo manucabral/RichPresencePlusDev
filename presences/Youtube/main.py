@@ -1,56 +1,138 @@
-import rpp
 import time
+from rpp import extension, Presence, Runtime, Tab
 
 
-@rpp.extension
-class Youtube(rpp.Presence):
+@extension
+class Youtube(Presence):
 
     def __init__(self):
-        super().__init__()
-        self.version = "1.0.0"
-        self.clientId = 1113646725408772176
-        self.name = "Youtube"
+        super().__init__(metadataFile=True)
         self.thumbnail = "https://i.ytimg.com/vi/{videoId}/hqdefault.jpg"
+        self.logo = "https://cdn3.iconfinder.com/data/icons/social-network-30/512/social-06-1024.png"
+
+    def extractYoutubeTabs(self, tabs: list[Tab]) -> list[Tab]:
+        return [
+            tab
+            for tab in tabs
+            if "www.youtube.com/watch" in tab.url or "www.youtube.com/shorts" in tab.url
+        ]
+
+    def extractVideoTitle(self, tab: Tab) -> str:
+        return (
+            tab.execute(
+                "document.querySelector('#title > h1 > yt-formatted-string').textContent"
+            )
+            or "Unknown"
+        )
+
+    def extractVideoId(self, tab: Tab) -> str:
+        if "v=" in tab.url:
+            videoId = tab.url.split("v=")[1]
+            return videoId.split("&")[0] if "&" in videoId else videoId
+        return "Unknown"
+
+    def extractShortId(self, tab: Tab) -> str:
+        return tab.url.split("/shorts/")[1]
+
+    def extractVideoAuthor(self, tab: Tab) -> str:
+        return (
+            tab.execute('document.querySelector("#owner #text").textContent')
+            or "Unknown"
+        )
+
+    def extractVideoAuthorUrl(self, tab: Tab) -> str:
+        return tab.execute('document.querySelector("#owner #text > a").href')
+
+    def extractThumbnail(self, videoId: str) -> str:
+        return self.thumbnail.format(videoId=videoId)
+
+    def extractVideoPlayback(self, tab: Tab) -> str:
+        return tab.execute("navigator.mediaSession.playbackState")
+        # return tab.execute('document.querySelector("#movie_player").getCurrentTime()')
+
+    def extractShortAuthor(self, tab: Tab) -> str:
+        return tab.execute(
+            'document.querySelectorAll("#channel-info #channel-name a")[document.querySelectorAll("#channel-info #channel-name a").length - 1].textContent'
+        )
+
+    def handleShort(self, tab: Tab):
+
+        shortId = self.extractShortId(tab)
+        shortThumbnail = self.extractThumbnail(shortId)
+        shortAuthor = self.extractShortAuthor(tab)
+        shortAuthorUrl = "https://www.youtube.com/" + shortAuthor
+
+        self.state = "Watching YouTube Short"
+        self.details = "By " + shortAuthor
+        self.large_image = shortThumbnail
+
+        self.buttons = [
+            {
+                "label": "Watch Short",
+                "url": tab.url,
+            },
+            {
+                "label": "Author",
+                "url": shortAuthorUrl,
+            },
+        ]
+        self.log.debug(f"Updating short: {shortId}, url: {tab.url}")
+
+    def handleVideo(self, tab: Tab):
+
+        videoId = self.extractVideoId(tab)
+        videoTitle = self.extractVideoTitle(tab)
+        videoAuthor = self.extractVideoAuthor(tab)
+        videoAuthorUrl = self.extractVideoAuthorUrl(tab)
+        videoThumbnail = self.extractThumbnail(videoId)
+        videoPlayback = self.extractVideoPlayback(tab)
+
+        self.small_text = "Playing" if videoPlayback == "playing" else "Paused"
+        self.small_image = "play" if videoPlayback == "playing" else "pause"
+
+        self.details = "By " + videoAuthor
+        self.state = videoTitle
+        self.large_image = videoThumbnail
+
+        self.buttons = [
+            {
+                "label": "Watch on YouTube",
+                "url": tab.url,
+            },
+            {
+                "label": "Author",
+                "url": videoAuthorUrl,
+            },
+        ]
+        self.log.debug(f"Updating video: {videoTitle}, url: {tab.url}")
+
+    def handleBrowsing(self):
+        self.state = "Browsing..."
+        self.details = "Idle"
+        self.large_image = self.logo
 
     def on_load(self):
-        self.log.info("Started successfully")
-        self.state = "Idle"
+        self.state = "Watching YouTube"
         self.details = "Idle"
+        self.large_image = self.logo
+        self.log.info("Started successfully")
 
-    def filter_tabs(self, tabs):
-        return [tab for tab in tabs if "youtube.com" in tab.url]
-
-    def on_update(self, runtime: rpp.Runtime):
+    def on_update(self, runtime: Runtime):
         tabs = runtime.tabs()
-        print(tabs)
+        tabs = self.extractYoutubeTabs(tabs)
         if not tabs:
+            self.log.info("No YouTube tabs found")
             return
-        tabs = self.filter_tabs(tabs)
-        if not tabs:
-            return
-        tab = tabs[0]
-        title = tab.execute(
-            "document.querySelector('#title > h1 > yt-formatted-string').textContent"
-        )
-        videoId = tab.url.split("v=")
-        if len(videoId) < 2:
-            return
-        videoId = videoId[1]
-        author = tab.execute('document.querySelector("#owner #text").textContent')
-        authorUrl = tab.execute('document.querySelector("#owner #text > a").href')
-        thumbnail = self.thumbnail.format(videoId=videoId)
-        playback = tab.execute("navigator.mediaSession.playbackState")
-        self.small_text = "Playing" if playback == "playing" else "Paused"
-        self.small_image = "play" if playback == "playing" else "pause"
-        self.state = "By " + author
-        self.details = title
-        self.large_image = thumbnail
-        self.buttons = [
-            {"label": "Watch on Youtube", "url": tab.url},
-            {"label": "View Channel", "url": authorUrl},
-        ]
-        print(f"Updated Youtube to {title}")
-        time.sleep(5)
+        lastTab = tabs[0]
+
+        if "/shorts/" in lastTab.url:
+            self.handleShort(lastTab)
+        elif "/watch?" in lastTab.url:
+            self.handleVideo(lastTab)
+        else:
+            self.handleBrowsing()
+
+        time.sleep(1)
 
     def on_close(self):
         self.log.info("Closed")
