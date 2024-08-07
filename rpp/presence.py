@@ -3,13 +3,18 @@ from abc import ABC, abstractmethod
 
 class Presence(ABC):
     """
-    Abstract class for presence extensions.
+    Base class for creating a presence extension.
     """
 
-    def __init__(self):
+    def __init__(self, metadataFile: bool = False):
         self.name = None
+        self.author = "Unknown"
         self.version = "1.0.0"
         self.web = False
+        self.enabled = True
+        self.updateInterval = 3
+        self.metadataFile = metadataFile
+        self.devMode = False
         self.clientId = None
         self.title = None
         self.details = None
@@ -25,58 +30,34 @@ class Presence(ABC):
     @abstractmethod
     def on_load(self) -> None:
         """
-        Called once when the presence is loaded.
-
-        Returns:
-            None
+        Called when the extension is loaded.
         """
         pass
 
     @abstractmethod
     def on_update(self, **context) -> None:
         """
-        Called every second to update the presence.
-
-        Args:
-            **context: The context of the presence.
-
-        Context:
-            runtime (Runtime): The runtime instance for interaction with the browser.
-
-        Returns:
-            None
+        Called when the presence is updated.
         """
         pass
 
     @abstractmethod
     def on_close(self):
         """
-        Called once when the presence is closed.
-
-        Returns:
-            None
+        Called when the extension is closed.
         """
         pass
 
     @abstractmethod
     def force_update(self):
         """
-        Forces an update on the presence.
-        Only updates if the time elapsed is greater than 15 seconds.
-
-        Returns:
-            None
+        Forces an update to the presence.
         """
         pass
 
 
 def extension(cls: Presence):
     """
-    Decorator to register a class new presence extension.
-
-    Args:
-        cls (Presence): The presence extension class.
-
-    Returns:
-        Presence: The presence extension class.
+    Decorator to register an new extension.
     """
+    pass
