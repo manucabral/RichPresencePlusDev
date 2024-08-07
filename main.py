@@ -62,7 +62,7 @@ if __name__ == "__main__":
     browserTools(log, browserId)
 
     runtime = rpp.Runtime(9222)
-    main = rpp.Manager(runtime=runtime, dev=False)
+    main = rpp.Manager(runtime=runtime, dev=True)
     main.load()
 
     if len(main.presences) == 0:
