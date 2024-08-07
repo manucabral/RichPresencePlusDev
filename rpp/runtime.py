@@ -1,16 +1,9 @@
 from .tab import Tab
-from .logger import getLogger
 
 
-def update_data(func: callable) -> callable:
+def check_connection(func: callable):
     """
-    Decorator to update the data of the runtime instance.
-
-    Args:
-        func (function): The function to decorate.
-
-    Returns:
-        function: The decorated function.
+    Decorator to check if the runtime is connected to the browser
     """
 
 
@@ -20,35 +13,35 @@ class Runtime:
     It is used to interact with the browser and get information about it.
     """
 
-    def __init__(self, port: int):
-        self.port = port
-        self.data = []
-        self.connected = False
-        self.log = getLogger("Runtime")
-
-    def update(self) -> None:
+    def update(self):
         """
-        Update the runtime data.
+        Update the runtime data (tabs).
         """
         pass
 
-    @update_data
+    @check_connection
     def tabs(self) -> list[Tab]:
         """
-        Get the tabs of the browser.
-
-        Returns:
-            list[Tab]: The list of tabs.
+        Get all the tabs opened in the browser.
         """
-        return self.data
+        pass
 
-    @property
-    @update_data
+    @check_connection
     def current_tab(self) -> Tab:
         """
-        Get the current tab of the browser.
+        Get the current tab opened in the browser.
+        """
+        pass
+
+    @check_connection
+    def filter_tabs(self, url: str) -> list[Tab]:
+        """
+        Filter tabs by url
+
+        Args:
+            url (str): The url to filter by
 
         Returns:
-            Tab: The current tab.
+            list[Tab]: A list of tabs that match the url
         """
-        return self.data[0]
+        pass
