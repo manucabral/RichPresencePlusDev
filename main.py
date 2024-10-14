@@ -1,78 +1,114 @@
-from sys import exit
-import logging
+__title__ = "Rich Presence Plus Development Script"
+__description__ = (
+    "Development script for creating custom presences for Rich Presence Plus."
+)
+__author__ = "Manuel Cabral"
+__version__ = "0.3.0"
+__license__ = "MIT"
+
+import argparse
+import time
 import rpp
 
 
-def checkBrowser(log: logging.Logger, browserId: str) -> None:
+def browser_tools(browser: rpp.Browser, log: rpp.logger.RPPLogger, port: int) -> None:
     """
-    Simple check to see if a browser is found
+    Browser tools for managing the browser.
 
     Args:
-        log (logging.Logger): Logger instance
-        browserId (str): Browser ID
+        browser (rpp.Browser): The browser instance.
+        log (rpp.logger.RPPLogger): The logger instance.
+        port (int): The port for start the remote debugging.
+    """
+    log = rpp.get_logger("Browser Tools")
+    log.info(f"Detected {browser.name} ({browser.process})")
+    log.info("Using the default browser.")
+    log.info(
+        f"{browser.name} is actually {'running' if browser.running() else 'not running'}"
+    )
+    print("------------------")
+    print("1. Force restart", browser.name)
+    print("2. Close/kill", browser.name)
+    print("3. Open", browser.name)
+    print("4. Do nothing")
+    print("------------------")
+    while True:
+        choice = input("Select an option: ")
+        if not choice.isdigit():
+            print("Invalid input.")
+            continue
+        choice = int(choice)
+        if not choice in range(1, 5):
+            print("Invalid choice.")
+            continue
+
+        log.info("Please wait...")
+        if choice == 1:
+            browser.kill()
+            time.sleep(3)
+            browser.start(remote_port=port)
+            log.info("Browser restarted.")
+            break
+        elif choice == 2:
+            browser.close()
+            log.info("Browser closed.")
+            break
+        elif choice == 3:
+            browser.start(remote_port=port)
+            log.info("Browser opened.")
+            break
+        elif choice == 4:
+            break
+
+    input("Press Enter to continue...")
+
+
+def prepare_args() -> argparse.Namespace:
+    """
+    Prepare the arguments.
 
     Returns:
-        None
+        argparse.Namespace: The arguments.
     """
-    log.info("Checking for browser...")
-    if not browserId:
-        log.info("Browser not found")
-        exit()
-
-
-def browserTools(log: logging.Logger, browserId: str) -> None:
-    """
-    Browser tools to help with debugging
-
-    Args:
-        log (logging.Logger): Logger instance
-        browserId (str): Browser ID
-
-    Returns:
-        None
-    """
-    print(f"Browser tools for {browserId}")
-    print("1. Close and open browser")
-    print("2. Close all browser instances")
-    print("3. Open browser with remote debugging")
-    print("4. Skip")
-    res = input("Choose an option: ")
-    if res == "1":
-        log.info("Closing and opening browser")
-        rpp.killBrowser(rpp.getBrowserProcess(browserId))
-        rpp.openRemoteDebuggingPort(9222)
-    elif res == "2":
-        log.info("Closing all browser instances")
-        rpp.killBrowser(rpp.getBrowserProcess(browserId))
-        rpp.info("Please restart the application")
-        input("Press any key to exit...")
-        exit()
-    elif res == "3":
-        log.info("Opening browser with remote debugging")
-        rpp.openRemoteDebuggingPort(9222)
-    else:
-        log.info("Skipping browser tools")
+    parser = argparse.ArgumentParser(description=__description__, prog=__title__)
+    parser.add_argument(
+        "-bt",
+        "--browser-tools",
+        action="store_true",
+        help="Include browser tools for managing the browser.",
+        default=False,
+    )
+    parser.add_argument(
+        "-p",
+        "--port",
+        type=int,
+        help="The port for start the remote debugging (default: 9222).",
+        default=9222,
+    )
+    parser.add_argument(
+        "-ri",
+        "--runtime-interval",
+        type=int,
+        help="The interval for updating the runtime in seconds (default: 1).",
+        default=1,
+    )
+    return parser.parse_args()
 
 
 if __name__ == "__main__":
 
-    log = rpp.getLogger("Main")
-    browserId = rpp.getBrowserProgId()
-    checkBrowser(log, browserId)
-    browserTools(log, browserId)
+    args = prepare_args()
+    log = rpp.get_logger("Main")
+    log.info(f"{__title__} v{__version__}")
+    log.info(f"Using RPP v{rpp.__version__}")
 
-    runtime = rpp.Runtime(9222)
-    main = rpp.Manager(runtime=runtime, dev=True)
-    main.load()
+    if args.browser_tools:
+        browser = rpp.Browser()
+        browser_tools(browser, log, args.port)
 
-    if len(main.presences) == 0:
-        log.error("No presences loaded")
-        input("Press any key to exit...")
-        exit()
-    if not main.validate_presences():
-        log.error("Presences failed validation")
-        input("Press any key to exit...")
-        exit()
-
-    log.info(f"Loaded a total of {len(main.presences)} presence/s")
-    main.start()
+    runtime = rpp.Runtime(port=args.port)
+    manager = rpp.Manager(
+        runtime=runtime, dev_mode=True, runtime_interval=args.runtime_interval
+    )
+    manager.load()
+    manager.start()
