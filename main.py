@@ -1,3 +1,18 @@
+"""
+Rich Presence Plus Development Script
+-------------------------------------
+Development script for creating custom presences for Rich Presence Plus.
+
+Usage:
+    python main.py [-h] [-bt] [-p PORT] [-ri RUNTIME_INTERVAL]
+
+Options:
+    -bt, --browser-tools    Include browser tools for managing the browser.
+    -p PORT, --port PORT    The port for start the remote debugging (default: 9222).
+    -ri RUNTIME_INTERVAL, --runtime-interval RUNTIME_INTERVAL
+                            The interval for updating the runtime in seconds (default: 1).
+"""
+
 __title__ = "Rich Presence Plus Development Script"
 __description__ = (
     "Development script for creating custom presences for Rich Presence Plus."
@@ -8,6 +23,7 @@ __license__ = "MIT"
 
 import argparse
 import time
+import sys
 import rpp
 
 
@@ -92,15 +108,21 @@ def prepare_args() -> argparse.Namespace:
         help="The interval for updating the runtime in seconds (default: 1).",
         default=1,
     )
+    parser.add_argument(
+        "-v",
+        "--version",
+        action="version",
+        version=f"{__title__} v{__version__}",
+    )
     return parser.parse_args()
 
 
 if __name__ == "__main__":
-
     args = prepare_args()
     log = rpp.get_logger("Main")
     log.info(f"{__title__} v{__version__}")
     log.info(f"Using RPP v{rpp.__version__}")
+    rpp.load_env()
 
     if args.browser_tools:
         browser = rpp.Browser()
@@ -111,4 +133,8 @@ if __name__ == "__main__":
         runtime=runtime, dev_mode=True, runtime_interval=args.runtime_interval
     )
     manager.load()
+    manager.compare()
     manager.start()
+
+    input("Press Enter to continue...")
+    sys.exit(0)
