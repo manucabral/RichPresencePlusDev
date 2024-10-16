@@ -1,35 +1,47 @@
 from .tab import Tab
 
 
-def check_connection(func: callable):
+def check_connection(func):
     """
-    Decorator to check if the runtime is connected to the browser
+    Decorator to check if the runtime is connected before calling a method.
     """
+    pass
 
 
 class Runtime:
     """
-    A class representing the runtime of the browser.
-    It is used to interact with the browser and get information about it.
+    Class to interact with the browser runtime.
     """
 
-    def update(self):
+    def __init__(self, port: int):
         """
-        Update the runtime data (tabs).
+        Initialize the runtime.
+        """
+        pass
+
+    def update(self) -> None:
+        """
+        Update the data from the browser.
         """
         pass
 
     @check_connection
     def tabs(self) -> list[Tab]:
         """
-        Get all the tabs opened in the browser.
+        Get the tabs.
+
+        Returns:
+            list[Tab]: A list of tabs
         """
         pass
 
     @check_connection
     def current_tab(self) -> Tab:
         """
-        Get the current tab opened in the browser.
+        Get the current tab.
+
+        Returns:
+            Tab: The current tab
         """
         pass
 
