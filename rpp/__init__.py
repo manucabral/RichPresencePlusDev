@@ -1,21 +1,26 @@
 """
 Rich Presence Plus
 ------------------
-A simple Discord Rich Presence manager for desktop and web apps.
+A simple Discord Rich Presence manager for custom desktop or web status.
 """
 
-from .presence import Presence, extension
+from .presence import Presence
 from .runtime import Runtime
+from .extension import extension
 from .tab import Tab
 
 __title__ = "Rich Presence Plus"
+__description__ = (
+    "A simple Discord Rich Presence manager for custom desktop or web status."
+)
+__version__ = "0.0.3"
 __author__ = "Manuel Cabral"
-__version__ = "0.0.1"
-__license__ = "GPLv3"
+__license__ = "GPL-3.0"
+
 
 __all__ = [
     "Presence",
-    "extension",
     "Runtime",
+    "extension",
     "Tab",
 ]
