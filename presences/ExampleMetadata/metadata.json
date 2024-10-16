@@ -1,0 +1,19 @@
+{
+    "name": "ExampleMetadata",
+    "version": "1.0.0",
+    "description": {
+        "en": "Example of a metadata file for a Presence.",
+        "pt-BR": "Exemplo de um arquivo de metadados para uma Presença."
+    },
+    "clientId": 123456789012345678,
+    "updateInterval": 3,
+    "author": "manucabral",
+    "contributors": [],
+    "web": false,
+    "category": "Other",
+    "color": "#A56786",
+    "tags": [
+        "example",
+        "metadata"
+    ]
+}
