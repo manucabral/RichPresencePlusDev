@@ -10,6 +10,7 @@ build_exe_options = {
         "rpp.Runtime",
         "rpp.Presence",
         "rpp.Browser",
+        "rpp.ClientRPC",
         "rpp.load_env",
         "rpp.get_available_presences",
     ],
