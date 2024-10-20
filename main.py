@@ -18,7 +18,7 @@ __description__ = (
     "Development script for creating custom presences for Rich Presence Plus."
 )
 __author__ = "Manuel Cabral"
-__version__ = "0.3.0"
+__version__ = "0.3.2"
 __license__ = "MIT"
 
 import argparse
