@@ -1,10 +1,10 @@
 ## RPP Development Script
-Create your custom web or desktop applications using this script. It includes all the essential tools, libraries, and sample code you need to get started quickly and efficiently.
+Create your custom web or desktop presence for [Rich Presence Plus](https://github.com/manucabral/RichPresencePlus) using this script. 
 
 > [!IMPORTANT]  
 > Currently in the early development phase. Please take this into consideration.
 
-Check out [Rich Presence Plus](https://github.com/manucabral/RichPresencePlus) application repository.
+Check out [Rich Presence Plus](https://github.com/manucabral/RichPresencePlus) app repository.
 
 
 ## Quick Usage
