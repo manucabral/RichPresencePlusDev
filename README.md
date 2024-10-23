@@ -4,7 +4,7 @@ Create your custom web or desktop presence for [Rich Presence Plus](https://gith
 > [!IMPORTANT]  
 > Currently in the early development phase. Please take this into consideration.
 
-Check out [Rich Presence Plus](https://github.com/manucabral/RichPresencePlus) app repository.
+Check out the [wiki](https://github.com/manucabral/RichPresencePlusDev/wiki).
 
 
 ## Quick Usage
